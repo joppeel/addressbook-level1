@@ -501,42 +501,75 @@ public class AddressBook {
     }
 
     private static String executeUpdatePerson(String commandArgs){
-        if(!isUpdatePersonArgsValid(commandArgs)){
-            return "asf";
+        Optional<String> targetAttribute = getTargetAttributes(commandArgs);
+        final boolean isValid = isValidUpdatePersonArgsValid(commandArgs, targetAttribute);
+        if(!isValid){
+            return getMessageForInvalidCommandInput(COMMAND_UPDATE_WORD, getUsageInfoForUpdateCommand());
         }
-        else {
-            return "asdfasd";
-        }
+        String[] splittedArgs = commandArgs.split(targetAttribute.get());
+        final String person = splittedArgs[0].trim();
+        final String newValue = splittedArgs[1].trim();
+        updateInformationForPerson(person, newValue, targetAttribute.get());
+        return person + "'s information is updated";
     }
 
 
-    private static boolean isUpdatePersonArgsValid(String commandArgs){
-        ArrayList<String> splittedArgs = splitByWhitespace(commandArgs);
-        if(splittedArgs.size() != 2){
+    private static void updateInformationForPerson(String person, String newValue, String targetAttribute){
+        final int index = getDataIndexFromName(targetAttribute);
+        for (String[] loopPerson : ALL_PERSONS){
+            if(loopPerson[PERSON_DATA_INDEX_NAME].equals(person)){
+                loopPerson[index] = newValue;
+            }
+        }
+    }
+
+    private static int getDataIndexFromName(String targetAttribute){
+        if(targetAttribute.equals("n/")) {
+            return PERSON_DATA_INDEX_NAME;
+        }
+        else if(targetAttribute.equals("p/")) {
+            return PERSON_DATA_INDEX_PHONE;
+        }
+        else{
+            return PERSON_DATA_INDEX_EMAIL;
+        }
+    }
+
+    private static boolean isValidUpdatePersonArgsValid(String commandArgs, Optional<String> targetAttribute){
+        if(!targetAttribute.isPresent()) {
             return false;
         }
-
-        final String person = splittedArgs.get(0);
-        final String param = splittedArgs.get(1);
-
+        String[] splittedArgs = commandArgs.split(targetAttribute.get());
+        final String person = splittedArgs[0].trim();
         if(!personExists(person)){
-            return false;
-        }
-        if(!correctParamForUpdate(param)){
             return false;
         }
         return true;
     }
 
+    private static Optional<String> getTargetAttributes(String args){
+        Optional<String> result = Optional.empty();
+        if(args.contains(PERSON_DATA_PREFIX_NAME)){
+            result = Optional.of(PERSON_DATA_PREFIX_NAME);
+        }
+        else if(args.contains(PERSON_DATA_PREFIX_PHONE)){
+            result = Optional.of(PERSON_DATA_PREFIX_PHONE);
+        }
+        else if(args.contains(PERSON_DATA_PREFIX_EMAIL)){
+            result = Optional.of(PERSON_DATA_PREFIX_EMAIL);
+        }
+        return result;
+    }
+
     private static boolean personExists(String person){
         for (String[] testPerson : ALL_PERSONS){
-            if(testPerson[PERSON_DATA_INDEX_NAME] == person){
+            if(testPerson[PERSON_DATA_INDEX_NAME].equals(person)){
                 return true;
             }
         }
         return false;
     }
-
+    /**
     private static boolean correctParamForUpdate(String param){
         final boolean startsWithNamePrefix = param.startsWith(PERSON_DATA_PREFIX_NAME);
         final boolean startsWithPhonePrefix= param.startsWith(PERSON_DATA_PREFIX_PHONE);
@@ -544,6 +577,7 @@ public class AddressBook {
 
         return startsWithNamePrefix || startsWithPhonePrefix || startsWithEmailPrefix;
     }
+     */
 
     /**
      * Deletes person identified using last displayed index.
@@ -1166,6 +1200,12 @@ public class AddressBook {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_FIND_WORD, COMMAND_FIND_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_PARAMETERS, COMMAND_FIND_PARAMETERS) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_FIND_EXAMPLE) + LS;
+    }
+
+    private static String getUsageInfoForUpdateCommand(){
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_UPDATE_WORD, COMMAND_UPDATE_DESC) + LS
+                + String.format(MESSAGE_COMMAND_HELP_PARAMETERS, COMMAND_UPDATE_PARAMETERS) + LS
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_UPDATE_EXAMPLE) + LS;
     }
 
     /** Returns the string for showing 'delete' command usage instruction */
