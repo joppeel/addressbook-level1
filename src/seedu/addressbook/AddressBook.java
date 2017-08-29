@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
-
 /*
  * NOTE : =============================================================
  * This class header comment below is brief because details of how to
@@ -92,6 +91,7 @@ public class AddressBook {
     private static final String MESSAGE_USING_DEFAULT_FILE = "Using default storage file : " + DEFAULT_STORAGE_FILEPATH;
 
     // These are the prefix strings to define the data type of a command parameter
+    private static final String PERSON_DATA_PREFIX_NAME  = "n/";
     private static final String PERSON_DATA_PREFIX_PHONE = "p/";
     private static final String PERSON_DATA_PREFIX_EMAIL = "e/";
 
@@ -501,7 +501,48 @@ public class AddressBook {
     }
 
     private static String executeUpdatePerson(String commandArgs){
-        throw new UnsupportedOperationException();
+        if(!isUpdatePersonArgsValid(commandArgs)){
+            return "asf";
+        }
+        else {
+            return "asdfasd";
+        }
+    }
+
+
+    private static boolean isUpdatePersonArgsValid(String commandArgs){
+        ArrayList<String> splittedArgs = splitByWhitespace(commandArgs);
+        if(splittedArgs.size() != 2){
+            return false;
+        }
+
+        final String person = splittedArgs.get(0);
+        final String param = splittedArgs.get(1);
+
+        if(!personExists(person)){
+            return false;
+        }
+        if(!correctParamForUpdate(param)){
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean personExists(String person){
+        for (String[] testPerson : ALL_PERSONS){
+            if(testPerson[PERSON_DATA_INDEX_NAME] == person){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean correctParamForUpdate(String param){
+        final boolean startsWithNamePrefix = param.startsWith(PERSON_DATA_PREFIX_NAME);
+        final boolean startsWithPhonePrefix= param.startsWith(PERSON_DATA_PREFIX_PHONE);
+        final boolean startsWithEmailPrefix = param.startsWith(PERSON_DATA_PREFIX_EMAIL);
+
+        return startsWithNamePrefix || startsWithPhonePrefix || startsWithEmailPrefix;
     }
 
     /**
