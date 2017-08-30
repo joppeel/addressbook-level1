@@ -89,6 +89,7 @@ public class AddressBook {
     private static final String MESSAGE_STORAGE_FILE_CREATED = "Created new empty storage file: %1$s";
     private static final String MESSAGE_WELCOME = "Welcome to your Address Book!";
     private static final String MESSAGE_USING_DEFAULT_FILE = "Using default storage file : " + DEFAULT_STORAGE_FILEPATH;
+    private static final String MESSAGE_UPDATE_SUCCESS = "Person's information was updated";
 
     // These are the prefix strings to define the data type of a command parameter
     private static final String PERSON_DATA_PREFIX_NAME  = "n/";
@@ -506,15 +507,15 @@ public class AddressBook {
         if(!isValid){
             return getMessageForInvalidCommandInput(COMMAND_UPDATE_WORD, getUsageInfoForUpdateCommand());
         }
-        String[] splittedArgs = commandArgs.split(targetAttribute.get());
-        final String person = splittedArgs[0].trim();
-        final String newValue = splittedArgs[1].trim();
-        updateInformationForPerson(person, newValue, targetAttribute.get());
-        return person + "'s information is updated";
+        updateInformationForPerson(commandArgs, targetAttribute.get());
+        return MESSAGE_UPDATE_SUCCESS;
     }
 
 
-    private static void updateInformationForPerson(String person, String newValue, String targetAttribute){
+    private static void updateInformationForPerson(String args, String targetAttribute){
+        final String[] splittedArgs = args.split(targetAttribute);
+        final String person = splittedArgs[0].trim();
+        final String newValue = splittedArgs[1].trim();
         final int index = getDataIndexFromName(targetAttribute);
         for (String[] loopPerson : ALL_PERSONS){
             if(loopPerson[PERSON_DATA_INDEX_NAME].equals(person)){
@@ -534,7 +535,7 @@ public class AddressBook {
             return PERSON_DATA_INDEX_EMAIL;
         }
     }
-
+    
     private static boolean isValidUpdatePersonArgsValid(String commandArgs, Optional<String> targetAttribute){
         if(!targetAttribute.isPresent()) {
             return false;
@@ -569,15 +570,6 @@ public class AddressBook {
         }
         return false;
     }
-    /**
-    private static boolean correctParamForUpdate(String param){
-        final boolean startsWithNamePrefix = param.startsWith(PERSON_DATA_PREFIX_NAME);
-        final boolean startsWithPhonePrefix= param.startsWith(PERSON_DATA_PREFIX_PHONE);
-        final boolean startsWithEmailPrefix = param.startsWith(PERSON_DATA_PREFIX_EMAIL);
-
-        return startsWithNamePrefix || startsWithPhonePrefix || startsWithEmailPrefix;
-    }
-     */
 
     /**
      * Deletes person identified using last displayed index.
