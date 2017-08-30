@@ -501,6 +501,13 @@ public class AddressBook {
         return matchedPersons;
     }
 
+    /**
+     * Main function for executing the update command. Updates person's information
+     * according to the parameter commandArgs.
+     *
+     * @param commandArgs user's input
+     * @return feedback display message for the operation results
+     */
     private static String executeUpdatePerson(String commandArgs){
         Optional<String> prefix = getPrefix(commandArgs);
         final boolean isValid = isUpdatePersonArgsValid(commandArgs, prefix);
@@ -514,7 +521,15 @@ public class AddressBook {
         return MESSAGE_UPDATE_SUCCESS;
     }
 
-
+    /**
+     * Does the actual updating for person's information. Looks for the correct person
+     * based on the name given as parameter and sets the information in the wanted
+     * index to new value
+     *
+     * @param personName the person's name which information needs to be updated
+     * @param newValue the new value for the field
+     * @param index the index of the information which needs to be updated
+     */
     private static void updateInformationForPerson(String personName, String newValue, int index){
         for (String[] loopPerson : ALL_PERSONS){
             if(loopPerson[PERSON_DATA_INDEX_NAME].equals(personName)){
@@ -523,6 +538,12 @@ public class AddressBook {
         }
     }
 
+    /**
+     * Simple function for determining the correct index for the wanted prefix.
+     *
+     * @param prefix which index is wanted to be found
+     * @return the index of the prefix
+     */
     private static int getDataIndexFromPrefix(String prefix){
         if(prefix.equals("n/")) {
             return PERSON_DATA_INDEX_NAME;
@@ -535,6 +556,15 @@ public class AddressBook {
         }
     }
 
+    /**
+     * Parses arguments from the user's input and returns them in a list. Splits
+     * the input at the prefix which is included in the input
+     *
+     * @param args the user input
+     * @param prefix the prefix which is included in the input
+     * @return parsed args in list, the first element is the person's name and the
+     *         second is the new value which needs to be set
+     */
     private static String[] parseArgsForUpdateOperation(String args, String prefix) {
         final String[] rawArgs = args.split(prefix);
         final String person = rawArgs[0].trim();
@@ -543,6 +573,14 @@ public class AddressBook {
         return result;
     }
 
+    /**
+     * Checks that the arguments that the user has given are valid. Arguments must
+     * include a name which is found from the
+     *
+     * @param commandArgs the user's command arguments
+     * @param prefix prefix wrapped in optional, empty if not available
+     * @return whether the arguments is valid or not
+     */
     private static boolean isUpdatePersonArgsValid(String commandArgs, Optional<String> prefix){
         if(!prefix.isPresent()) {
             return false;
@@ -561,6 +599,13 @@ public class AddressBook {
         return true;
     }
 
+    /**
+     * Determines the prefix which is supposed to be included in the command arguments.
+     * If not included, returns empty
+     *
+     * @param commandArgs the arguments from the user's input
+     * @return the prefix wrapped in optional, empty if no prefix was found
+     */
     private static Optional<String> getPrefix(String commandArgs){
         Optional<String> result = Optional.empty();
         if(commandArgs.contains(PERSON_DATA_PREFIX_NAME)){
