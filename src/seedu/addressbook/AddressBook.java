@@ -575,7 +575,7 @@ public class AddressBook {
 
     /**
      * Checks that the arguments that the user has given are valid. Arguments must
-     * include a name which is found from the
+     * include a prefix, a name which is in the address book and new value to be saved
      *
      * @param commandArgs the user's command arguments
      * @param prefix prefix wrapped in optional, empty if not available
@@ -586,6 +586,9 @@ public class AddressBook {
             return false;
         }
         String[] rawArgs = commandArgs.split(prefix.get());
+        if (rawArgs.length != 2){
+            return false;
+        }
         final String personName = rawArgs[0].trim();
         boolean personExists = false;
         for (String[] loopPerson : ALL_PERSONS){
@@ -593,7 +596,7 @@ public class AddressBook {
                 personExists = true;
             }
         }
-        if(!personExists){
+        if(!personExists) {
             return false;
         }
         return true;
