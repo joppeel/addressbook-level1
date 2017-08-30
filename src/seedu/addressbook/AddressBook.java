@@ -510,6 +510,7 @@ public class AddressBook {
         final String[] parsedArgs = parseArgsForUpdateOperation(commandArgs, prefix.get());
         final int index = getDataIndexFromPrefix(prefix.get());
         updateInformationForPerson(parsedArgs[0], parsedArgs[1], index);
+        saveUpdatedInformation();
         return MESSAGE_UPDATE_SUCCESS;
     }
 
@@ -865,6 +866,10 @@ public class AddressBook {
      */
     private static void addPersonToAddressBook(String[] person) {
         ALL_PERSONS.add(person);
+        savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
+    }
+
+    private static void saveUpdatedInformation() {
         savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
     }
 
