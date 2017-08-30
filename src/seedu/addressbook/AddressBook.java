@@ -502,73 +502,76 @@ public class AddressBook {
     }
 
     private static String executeUpdatePerson(String commandArgs){
-        Optional<String> targetAttribute = getTargetAttributes(commandArgs);
-        final boolean isValid = isValidUpdatePersonArgsValid(commandArgs, targetAttribute);
+        Optional<String> prefix = getPrefix(commandArgs);
+        final boolean isValid = isUpdatePersonArgsValid(commandArgs, prefix);
         if(!isValid){
             return getMessageForInvalidCommandInput(COMMAND_UPDATE_WORD, getUsageInfoForUpdateCommand());
         }
-        updateInformationForPerson(commandArgs, targetAttribute.get());
+        final String[] parsedArgs = parseArgsForUpdateOperation(commandArgs, prefix.get());
+        final int index = getDataIndexFromPrefix(prefix.get());
+        updateInformationForPerson(parsedArgs[0], parsedArgs[1], index);
         return MESSAGE_UPDATE_SUCCESS;
     }
 
 
-    private static void updateInformationForPerson(String args, String targetAttribute){
-        final String[] splittedArgs = args.split(targetAttribute);
-        final String person = splittedArgs[0].trim();
-        final String newValue = splittedArgs[1].trim();
-        final int index = getDataIndexFromName(targetAttribute);
+    private static void updateInformationForPerson(String personName, String newValue, int index){
         for (String[] loopPerson : ALL_PERSONS){
-            if(loopPerson[PERSON_DATA_INDEX_NAME].equals(person)){
+            if(loopPerson[PERSON_DATA_INDEX_NAME].equals(personName)){
                 loopPerson[index] = newValue;
             }
         }
     }
 
-    private static int getDataIndexFromName(String targetAttribute){
-        if(targetAttribute.equals("n/")) {
+    private static int getDataIndexFromPrefix(String prefix){
+        if(prefix.equals("n/")) {
             return PERSON_DATA_INDEX_NAME;
         }
-        else if(targetAttribute.equals("p/")) {
+        else if(prefix.equals("p/")) {
             return PERSON_DATA_INDEX_PHONE;
         }
         else{
             return PERSON_DATA_INDEX_EMAIL;
         }
     }
-    
-    private static boolean isValidUpdatePersonArgsValid(String commandArgs, Optional<String> targetAttribute){
-        if(!targetAttribute.isPresent()) {
+
+    private static String[] parseArgsForUpdateOperation(String args, String prefix) {
+        final String[] rawArgs = args.split(prefix);
+        final String person = rawArgs[0].trim();
+        final String newValue = rawArgs[1].trim();
+        final String[] result = {person, newValue};
+        return result;
+    }
+
+    private static boolean isUpdatePersonArgsValid(String commandArgs, Optional<String> prefix){
+        if(!prefix.isPresent()) {
             return false;
         }
-        String[] splittedArgs = commandArgs.split(targetAttribute.get());
-        final String person = splittedArgs[0].trim();
-        if(!personExists(person)){
+        String[] rawArgs = commandArgs.split(prefix.get());
+        final String personName = rawArgs[0].trim();
+        boolean personExists = false;
+        for (String[] loopPerson : ALL_PERSONS){
+            if (loopPerson[PERSON_DATA_INDEX_NAME].equals(personName)){
+                personExists = true;
+            }
+        }
+        if(!personExists){
             return false;
         }
         return true;
     }
 
-    private static Optional<String> getTargetAttributes(String args){
+    private static Optional<String> getPrefix(String commandArgs){
         Optional<String> result = Optional.empty();
-        if(args.contains(PERSON_DATA_PREFIX_NAME)){
+        if(commandArgs.contains(PERSON_DATA_PREFIX_NAME)){
             result = Optional.of(PERSON_DATA_PREFIX_NAME);
         }
-        else if(args.contains(PERSON_DATA_PREFIX_PHONE)){
+        else if(commandArgs.contains(PERSON_DATA_PREFIX_PHONE)){
             result = Optional.of(PERSON_DATA_PREFIX_PHONE);
         }
-        else if(args.contains(PERSON_DATA_PREFIX_EMAIL)){
+        else if(commandArgs.contains(PERSON_DATA_PREFIX_EMAIL)){
             result = Optional.of(PERSON_DATA_PREFIX_EMAIL);
         }
         return result;
-    }
-
-    private static boolean personExists(String person){
-        for (String[] testPerson : ALL_PERSONS){
-            if(testPerson[PERSON_DATA_INDEX_NAME].equals(person)){
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
